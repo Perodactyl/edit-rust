@@ -15,13 +15,13 @@ fn main() -> Result<(),u8> {
 	'main: loop {
 		if let Some(ev) = input.get_event() {
 			match ev {
-				Event::Char(c) => {
-					println!("{c}");
-					if c == 3 {
-						drop(input);
-						println!("Interrupted");
-						break 'main Ok(());
-					}
+				Event::TextChar(c) => {
+					send!("{c} ");
+					// if c == 3 {
+					// 	drop(input);
+					// 	println!("Interrupted");
+					// 	break 'main Ok(());
+					// }
 				},
 				Event::Paste(data) => {
 					println!("paste {data:?}");
