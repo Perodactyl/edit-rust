@@ -1,6 +1,6 @@
 use std::io::IsTerminal;
 
-use terminil::input::{Event, Input};
+use terminil::input::{Event, Input, SpecialKey};
 
 mod terminil;
 mod rope;
@@ -23,11 +23,18 @@ fn main() -> Result<(),u8> {
 					// 	break 'main Ok(());
 					// }
 				},
-				Event::Paste(data) => {
-					println!("paste {data:?}");
-				}
-				_ => {},
+				Event::SpecialKey(s) => {
+					match s {
+						SpecialKey::Escape => break 'main,
+						s => printnl!("{:?}", s),
+					}
+				},
+				e => printnl!("{:?}", e),
 			}
 		}
 	}
+
+	drop(input);
+	println!("Exited.");
+	Ok(())
 }

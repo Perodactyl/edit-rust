@@ -83,6 +83,7 @@ pub enum Action {
 	CursorVisible(bool),
 	AlternateBuffer(bool),
 	BracketPaste(bool),
+	FocusReport(bool),
 } impl ToAnsi for Action {
 	fn to_ansi(&self) -> String {
 		match self {
@@ -99,6 +100,7 @@ pub enum Action {
 			Action::CursorVisible(v)   => if *v { format!("{CSI}?25h")   } else { format!("{CSI}?25l")   },
 			Action::AlternateBuffer(b) => if *b { format!("{CSI}?1049h") } else { format!("{CSI}?1049l") },
 			Action::BracketPaste(b)    => if *b { format!("{CSI}?2004h") } else { format!("{CSI}?2004l") },
+			Action::FocusReport(r)     => if *r { format!("{CSI}?1004h") } else { format!("{CSI}?1004l") },
 		}
 	}
 }

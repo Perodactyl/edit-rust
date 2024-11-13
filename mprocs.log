@@ -3,3 +3,4 @@ ERROR [mprocs::error] Error: channel closed
 ERROR [mprocs] Got panic. @info:panicked at /home/peter/.cargo/registry/src/index.crates.io-6f17d22bba15001f/mprocs-0.7.1/encode_term.rs:238:16:
 unhandled fkey number 14
 @stackTrace:disabled backtrace
+ERROR [mprocs::error] Error: channel closed
