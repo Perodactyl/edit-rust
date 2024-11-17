@@ -42,7 +42,7 @@ pub enum Event {
 ///when the struct is dropped. **The default settings which are applied afterward may not match the values of the settings
 ///before the struct was instantiated.**
 pub struct Input {
-	guard: RawModeGuard,
+	_guard: RawModeGuard,
 }
 impl Input {
 	pub fn new() -> Self {
@@ -51,7 +51,7 @@ impl Input {
 		send!("{}{}{}{}", Action::AlternateBuffer(true).to_ansi(), Action::BracketPaste(true).to_ansi(), Action::FocusReport(true).to_ansi(), Action::EraseScrollback.to_ansi());
 
 		Input {
-			guard
+			_guard: guard
 		}
 	}
 	pub fn get_event(&mut self) -> Option<Event> {
@@ -146,7 +146,11 @@ impl Input {
 				_ => panic!("{e}"),
 			}
 		}
+	}
 
+	pub fn dimensions(&self) -> (u16, u16) {
+		let terminal_utils::TerminalSize { width, height, .. } = terminal_utils::size().unwrap();
+		(width, height)
 	}
 }
 impl Drop for Input {

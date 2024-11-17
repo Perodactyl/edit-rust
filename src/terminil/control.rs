@@ -18,6 +18,7 @@ pub enum Motion {
 	PrevLines(u16),
 	RelativeLine(i16),
 	LineStart,
+	LineAbsolute(u16),
 	ScreenStart,
 	///Expects `(x, y)` as opposed to `(row, col)`. Zero-indexed.
 	ToPosition(u16, u16),
@@ -47,19 +48,15 @@ pub enum Motion {
 				format!("{CSI}{}F", n.abs())
 			},
 
-			Motion::LineStart   => format!("{CSI}G"),
-			Motion::ScreenStart => format!("{CSI}H"),
+			Motion::LineStart               => format!("{CSI}G"),
+			Motion::LineAbsolute(x)   => format!("{CSI}{}G", x+1),
+			Motion::ScreenStart             => format!("{CSI}H"),
 
 			Motion::ToPosition(x, y) => format!("{CSI}{};{}H", y+1, x+1),
 
 			Motion::ScrollUp   => format!("{CSI}S"),
 			Motion::ScrollDown => format!("{CSI}T"),
 		}
-	}
-}  impl Motion {
-	#[allow(unused)]
-	pub fn as_ansi(&self) -> String {
-		self.to_ansi()
 	}
 } impl Default for Motion {
 	fn default() -> Self {

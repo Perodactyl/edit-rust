@@ -1,0 +1,38 @@
+background = "black"
+text = "white"
+
+[statusbar]
+
+background = 63
+foreground = "black"
+
+[[statusbar.modules]]
+type = "whitespace"
+length = 2
+
+[[statusbar.modules]]
+type = "mode"
+
+[[statusbar.modules]]
+type = "flex"
+
+[[statusbar.modules]]
+type = "text"
+content = "Hello, World!"
+
+[[statusbar.modules]]
+type = "flex"
+
+[[statusbar.modules]]
+type = "row"
+
+[[statusbar.modules]]
+type = "text"
+content = ":"
+
+[[statusbar.modules]]
+type = "column"
+
+[[statusbar.modules]]
+type = "whitespace"
+length = 3

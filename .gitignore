@@ -1,3 +1,3 @@
 /target
-mprocs.log
+*.log
 test.txt

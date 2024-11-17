@@ -249,7 +249,7 @@ pub struct RopeIterator<'a> {
 } impl<'a> Iterator for RopeIterator<'a> {
 	type Item = u8;
 	fn next(&mut self) -> Option<Self::Item> {
-		if self.index > self.rope.len() {
+		if self.index >= self.rope.len() {
 			None
 		} else {
 			let v = self.rope.byte_at(self.index);

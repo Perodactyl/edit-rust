@@ -3,12 +3,13 @@ use const_format::formatcp;
 
 #[allow(unused)]
 
-#[derive(Debug, Clone, Copy, PartialEq)]
+#[derive(Debug, Clone, Copy, PartialEq, serde::Deserialize)]
+#[serde(rename_all = "kebab-case")]
 pub enum Color {
-	///RGB TrueColor value
-	RGB(u8, u8, u8),
-	///256-color value
-	Index(u8),
+	///Uses the last color that was defined.
+	Unset,
+	///Uses the terminal default colors.
+	Uncolored,
 	Black,
 	Red,
 	Green,
@@ -16,7 +17,23 @@ pub enum Color {
 	Blue,
 	Magenta,
 	Cyan,
-	White
+	White,
+
+	BrightBlack,
+	BrightRed,
+	BrightGreen,
+	BrightYellow,
+	BrightBlue,
+	BrightMagenta,
+	BrightCyan,
+	BrightWhite,
+
+	#[serde(untagged)]
+	///RGB TrueColor value
+	RGB(u8, u8, u8),
+	#[serde(untagged)]
+	///256-color value
+	Index(u8),
 } impl Color {
 	#[allow(unused)]
 	///Converts a string like "rrggbb" into an instance of Color::RGB
@@ -36,59 +53,84 @@ pub enum Color {
 		))
 	}
 
-	pub fn as_fg_codes(self, bright: bool) -> String {
-		match (bright, self) {
-			(false, Color::Black  ) => "30".to_string(),
-			(false, Color::Red    ) => "31".to_string(),
-			(false, Color::Green  ) => "32".to_string(),
-			(false, Color::Yellow ) => "33".to_string(),
-			(false, Color::Blue   ) => "34".to_string(),
-			(false, Color::Magenta) => "35".to_string(),
-			(false, Color::Cyan   ) => "36".to_string(),
-			(false, Color::White  ) => "37".to_string(),
+	fn as_fg_codes(self) -> String {
+		match self {
+			Color::Unset         => "".to_string(),
+			Color::Uncolored     => "".to_string(),
+			Color::Black         => "30".to_string(),
+			Color::Red           => "31".to_string(),
+			Color::Green         => "32".to_string(),
+			Color::Yellow        => "33".to_string(),
+			Color::Blue          => "34".to_string(),
+			Color::Magenta       => "35".to_string(),
+			Color::Cyan          => "36".to_string(),
+			Color::White         => "37".to_string(),
 
-			(true,  Color::Black  ) => "90".to_string(),
-			(true,  Color::Red    ) => "91".to_string(),
-			(true,  Color::Green  ) => "92".to_string(),
-			(true,  Color::Yellow ) => "93".to_string(),
-			(true,  Color::Blue   ) => "94".to_string(),
-			(true,  Color::Magenta) => "95".to_string(),
-			(true,  Color::Cyan   ) => "96".to_string(),
-			(true,  Color::White  ) => "97".to_string(),
+			Color::BrightBlack   => "90".to_string(),
+			Color::BrightRed     => "91".to_string(),
+			Color::BrightGreen   => "92".to_string(),
+			Color::BrightYellow  => "93".to_string(),
+			Color::BrightBlue    => "94".to_string(),
+			Color::BrightMagenta => "95".to_string(),
+			Color::BrightCyan    => "96".to_string(),
+			Color::BrightWhite   => "97".to_string(),
 
-			(_, Color::Index(i)) => format!("38;5;{i}"),
-			(_, Color::RGB(r,g,b)) => format!("38;2;{r};{g};{b}"),
+			Color::Index(i) => format!("38;5;{i}"),
+			Color::RGB(r,g,b) => format!("38;2;{r};{g};{b}"),
 		}
 	}
 
-	pub fn as_bg_codes(self) -> String {
+	fn as_bg_codes(self) -> String {
 		match self {
-			Color::Black   => "40".to_string(),
-			Color::Red     => "41".to_string(),
-			Color::Green   => "42".to_string(),
-			Color::Yellow  => "44".to_string(),
-			Color::Blue    => "44".to_string(),
-			Color::Magenta => "45".to_string(),
-			Color::Cyan    => "46".to_string(),
-			Color::White   => "47".to_string(),
+			Color::Unset         => "".to_string(),
+			Color::Uncolored     => "".to_string(),
+			Color::Black         => "40".to_string(),
+			Color::Red           => "41".to_string(),
+			Color::Green         => "42".to_string(),
+			Color::Yellow        => "43".to_string(),
+			Color::Blue          => "44".to_string(),
+			Color::Magenta       => "45".to_string(),
+			Color::Cyan          => "46".to_string(),
+			Color::White         => "47".to_string(),
+
+			Color::BrightBlack   => "100".to_string(),
+			Color::BrightRed     => "101".to_string(),
+			Color::BrightGreen   => "102".to_string(),
+			Color::BrightYellow  => "103".to_string(),
+			Color::BrightBlue    => "104".to_string(),
+			Color::BrightMagenta => "105".to_string(),
+			Color::BrightCyan    => "106".to_string(),
+			Color::BrightWhite   => "107".to_string(),
 
 			Color::Index(i) => format!("48;5;{i}"),
 			Color::RGB(r,g,b) => format!("48;2;{r};{g};{b}"),
 		}
 	}
 	
-	pub fn as_fg(self, bright: bool) -> String {
-		format!("{CSI}{}m", self.as_fg_codes(bright))
+	pub fn as_fg(self) -> String {
+		if let Color::Uncolored = self {
+			format!("{CSI}39m")
+		} else if let Color::Unset = self {
+			format!("")
+		} else {
+			format!("{CSI}{}m", self.as_fg_codes())
+		}
 	}
 	
 	pub fn as_bg(self) -> String {
-		format!("{CSI}{}m", self.as_bg_codes())
+		if let Color::Uncolored = self {
+			format!("{CSI}49m")
+		} else if let Color::Unset = self {
+			format!("")
+		} else {
+			format!("{CSI}{}m", self.as_bg_codes())
+		}
 	}
 }
 
-#[derive(Default, Debug, Clone, Copy)]
+#[derive(Default, Debug, Clone, Copy, serde::Deserialize)]
 pub struct Style {
-	fg: Option<(Color, bool)>,
+	fg: Option<Color>,
 	bg: Option<Color>,
 	bold: Option<bool>,
 } impl Style {
@@ -100,18 +142,9 @@ pub struct Style {
 	};
 
 	#[allow(unused)]
-	pub fn fg_bright(color: Color) -> Style {
-		Style {
-			fg: Some((color, true)),
-			bg: None,
-			bold: None,
-		}
-	}
-
-	#[allow(unused)]
 	pub fn fg(color: Color) -> Style {
 		Style {
-			fg: Some((color, false)),
+			fg: Some(color),
 			bg: None,
 			bold: None,
 		}
@@ -155,9 +188,9 @@ pub struct Style {
 
 impl ToAnsi for Style {
 	fn to_ansi(&self) -> String {
-		return format!("{RESET}{}{}{}",
-			if self.bold.unwrap_or_default() {formatcp!("{CSI}1m")} else {""},
-			self.fg.map_or(String::default(), |v| v.0.as_fg(v.1)),
+		return format!("{}{}{}",
+			if self.bold.unwrap_or_default() {formatcp!("{CSI}1m")} else {formatcp!("{CSI}22m")},
+			self.fg.map_or(String::default(), |v| v.as_fg()),
 			self.bg.map_or(String::default(), |v| v.as_bg()),
 		);
 	}
